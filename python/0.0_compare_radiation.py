@@ -18,7 +18,7 @@ import xesmf as xe
 import easygems.healpix as egh
 import healpy as hp
 
-def ceres_diff(figname, variable):
+def ceres_diff(figname, variable, cbar_range1, cbar_range2):
     ##### CERES Data
     ceres = xr.open_dataset('/g/data/er8/users/cd3022/hk25-ShallowConvection/CERES_EBAF-TOA_Ed4.2.1_Subset_200003-202502.nc')
     ceres['toa_sw_all_mon'] = ceres['toa_sw_all_mon'] * -1
@@ -85,17 +85,22 @@ def ceres_diff(figname, variable):
     # longitudes and latitudes for the ERA5 grid
     lon = ceres['lon'].values
     lat = ceres['lat'].values
+    print(f'lon shape: {lon.shape}')
+    print(f'lat shape: {lat.shape}')
 
     # nside for um simulation, it should be equal to 2**zoom
     this_nside = hp.get_nside(um_data)
+    print(f'this_nside shape: {this_nside.shape}')
 
-    cells = get_nn_lon_lat_index(this_nside, lon, lat) 
+    cells = get_nn_lon_lat_index(this_nside, lon, lat)
+    print(f'cells shape: {cells.shape}')
 
     # Calculate UM-CERES difference
 
     um_ceres_diff = um_data.isel(cell = cells) - ceres_data
     um_ceres_rmse = np.sqrt(np.square(um_ceres_diff).weighted(np.cos(np.deg2rad(um_ceres_diff.lat))).mean()).values
-
+    print(f'um_data shape: {um_data.shape}')
+    print(f'um_ceres_diff shape: {um_ceres_diff.shape}')
     ##### GER node model data #####
 
     icon = xr.open_zarr('/g/data/qx55/germany_node/d3hp003.zarr/P1D_mean_z5_atm.zarr')
@@ -142,9 +147,9 @@ def ceres_diff(figname, variable):
 
     # example to add colorbar
     pltlevel, pltticks, pltnorm, pltcmp = plt_mesh_pars(
-        cm_min=-250, cm_max=-30, cm_interval1=10, cm_interval2=20, cmap='viridis',)
+        cm_min=cbar_range1[0], cm_max=cbar_range1[1], cm_interval1=10, cm_interval2=20, cmap='viridis',)
     pltlevel2, pltticks2, pltnorm2, pltcmp2 = plt_mesh_pars(
-        cm_min=-80, cm_max=80, cm_interval1=10, cm_interval2=20, cmap='BrBG')
+        cm_min=cbar_range2[0], cm_max=cbar_range2[1], cm_interval1=5, cm_interval2=10, cmap='BrBG')
 
     axs[0].pcolormesh(
             ceres.lon, ceres.lat,
@@ -180,9 +185,9 @@ def ceres_diff(figname, variable):
     cbar2.ax.set_xlabel(f'{variable} bias (W/m-2)')
 
     fig.subplots_adjust(left=0.001, right=0.999, bottom=fm_bottom, top=0.94)
-    fig.savefig(F'figures/{figname}.png')
+    # fig.savefig(F'figures/{figname}.png')
     return
-ceres_diff(figname='TEST_FUNC_LW', variable='rlut')
+ceres_diff(figname='lw_ceres_bias', variable='rlut', cbar_range1=(-300, -30), cbar_range2=(-40, 40))
 '''
 variables:
 rsut: toa outgoing shortwave
