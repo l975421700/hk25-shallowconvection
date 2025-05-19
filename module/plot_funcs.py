@@ -1,5 +1,21 @@
 
 
+# region get_nn_lon_lat_index
+
+def get_nn_lon_lat_index(nside, lons, lats):
+    import xarray as xr
+    import numpy as np
+    import healpy as hp
+    lons2, lats2 = np.meshgrid(lons, lats)
+    return xr.DataArray(
+        hp.ang2pix(nside, lons2, lats2, nest=True, lonlat=True),
+        coords=[("lat", lats), ("lon", lons)],
+    )
+
+
+# endregion
+
+
 # region funcs for global map plot
 
 def ticks_labels(xmin, xmax, ymin, ymax, xspacing, yspacing):

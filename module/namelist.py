@@ -75,6 +75,9 @@ era5_varlabels = {
     'z': r'geopotential height [$m$]',
     'q2m': r'2 $m$ specific humidity [$g \; kg^{-1}$]',
     'rh2m': r'2 $m$ relative humidity [$\%$]',
+    'S': r'$S$ [-]',
+    'D': r'$D$ [-]',
+    'S+D': r'$S+D$ [-]',
 }
 
 cmip6_era5_var = {

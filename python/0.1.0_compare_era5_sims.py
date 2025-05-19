@@ -61,10 +61,10 @@ datasets['UM'][f'z{izlev}1H'] = xr.open_zarr(f'/g/data/qx55/uk_node/glm.n2560_RA
 datasets['ICON'][f'z{izlev}1Dm'] = xr.open_zarr(f'/g/data/qx55/germany_node/d3hp003.zarr/P1D_mean_z{izlev}_atm.zarr')
 
 
-for imode in ['org', 'diff', 'regrid']:
+for imode in ['org', 'diff']:
     # ['org', 'diff', 'regrid']
     print(f'#-------------------------------- {imode}')
-    for var2 in ['clt']:
+    for var2 in ['clwvi', 'clivi', 'prw']:
         # ['rsut', 'clt', 'pr', 'rlut']
         var1 = cmip6_era5_var[var2]
         print(f'#---------------- {var2} {var1}')
@@ -118,6 +118,27 @@ for imode in ['org', 'diff', 'regrid']:
             extend = 'both'
             pltlevel2, pltticks2, pltnorm2, pltcmp2 = plt_mesh_pars(
                 cm_min=-40, cm_max=40, cm_interval1=5, cm_interval2=10, cmap='BrBG')
+            extend2 = 'both'
+        elif var2 in ['prw']:
+            pltlevel, pltticks, pltnorm, pltcmp = plt_mesh_pars(
+                cm_min=0, cm_max=60, cm_interval1=5, cm_interval2=10, cmap='Blues_r',)
+            extend = 'max'
+            pltlevel2, pltticks2, pltnorm2, pltcmp2 = plt_mesh_pars(
+                cm_min=-5, cm_max=5, cm_interval1=0.5, cm_interval2=1, cmap='BrBG_r')
+            extend2 = 'both'
+        elif var2 in ['clwvi']:
+            pltlevel, pltticks, pltnorm, pltcmp = plt_mesh_pars(
+                cm_min=0, cm_max=0.5, cm_interval1=0.05, cm_interval2=0.05, cmap='Blues_r',)
+            extend = 'max'
+            pltlevel2, pltticks2, pltnorm2, pltcmp2 = plt_mesh_pars(
+                cm_min=-0.1, cm_max=0.1, cm_interval1=0.2, cm_interval2=0.2, cmap='BrBG_r')
+            extend2 = 'both'
+        elif var2 in ['clivi']:
+            pltlevel, pltticks, pltnorm, pltcmp = plt_mesh_pars(
+                cm_min=0, cm_max=1, cm_interval1=0.1, cm_interval2=0.1, cmap='Blues_r',)
+            extend = 'max'
+            pltlevel2, pltticks2, pltnorm2, pltcmp2 = plt_mesh_pars(
+                cm_min=-0.4, cm_max=0.4, cm_interval1=0.1, cm_interval2=0.1, cmap='BrBG_r')
             extend2 = 'both'
         
         if var1 in ['mtuwswrf']:
