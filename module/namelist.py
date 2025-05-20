@@ -78,6 +78,11 @@ era5_varlabels = {
     'S': r'$S$ [-]',
     'D': r'$D$ [-]',
     'S+D': r'$S+D$ [-]',
+    'LTS': r'LTS [$K$]',
+    'clwc': r'cloud liquid water content [$10^{-3} \; g \; kg^{-1}$]',
+    'ciwc': r'cloud ice water content [$10^{-3} \; g \; kg^{-1}$]',
+    'crwc': r'cloud rain water content [$10^{-3} \; g \; kg^{-1}$]',
+    'cswc': r'cloud snow water content [$10^{-3} \; g \; kg^{-1}$]',
 }
 
 cmip6_era5_var = {
@@ -139,5 +144,10 @@ cmip6_era5_var = {
     'wap': 'w',
     'zg': 'z',
     # 'wa',
+    'hur': 'r',
+    'clw': 'clwc',
+    'cli': 'ciwc',
+    'qr': 'crwc',
+    'qs': 'cswc',
 }
 
