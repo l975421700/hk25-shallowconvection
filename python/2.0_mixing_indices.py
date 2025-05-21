@@ -28,7 +28,7 @@ era5_dirs = [
     # Path('/g/data/rt52/era5/pressure-levels/reanalysis/r/2021'),
     # Path('/g/data/rt52/era5/pressure-levels/reanalysis/t/2020'),
     # Path('/g/data/rt52/era5/pressure-levels/reanalysis/t/2021'),
-    Path('/g/data/rt52/era5/pressure-levels/reanalysis/w/2020'), # only contains variable "w"
+    Path('/g/data/rt52/era5/pressure-levels/reanalysis/w/2020'),
     Path('/g/data/rt52/era5/pressure-levels/reanalysis/w/2021'),
 ]
 # import glob
