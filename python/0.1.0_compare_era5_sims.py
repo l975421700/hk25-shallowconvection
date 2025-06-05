@@ -50,9 +50,14 @@ for ids in dss: datasets[ids] = {}
 datasets['UM'][f'z{izlev}1H'] = xr.open_zarr(f'/g/data/qx55/uk_node/glm.n2560_RAL3p3/data.healpix.PT1H.z{izlev}.zarr').sel(time=slice('2020-03', '2021-02'))
 datasets['ICON'][f'z{izlev2}1Dm'] = xr.open_zarr(f'/g/data/qx55/germany_node/d3hp003.zarr/P1D_mean_z{izlev2}_atm.zarr').sel(time=slice('2020-03', '2021-02'))
 
+datasets['UM'][f'z{izlev}1H']['rsutcl'] = datasets['UM'][f'z{izlev}1H']['rsut'] - datasets['UM'][f'z{izlev}1H']['rsutcs']
+datasets['ICON'][f'z{izlev2}1Dm']['rsutcl'] = datasets['ICON'][f'z{izlev2}1Dm']['rsut'] - datasets['ICON'][f'z{izlev2}1Dm']['rsutcs']
 
-for var2 in ['clivi']:
-    # ['rsut', 'clt', 'pr', 'rlut']
+datasets['UM'][f'z{izlev}1H']['rlutcl'] = datasets['UM'][f'z{izlev}1H']['rlut'] - datasets['UM'][f'z{izlev}1H']['rlutcs']
+datasets['ICON'][f'z{izlev2}1Dm']['rlutcl'] = datasets['ICON'][f'z{izlev2}1Dm']['rlut'] - datasets['ICON'][f'z{izlev2}1Dm']['rlutcs']
+
+for var2 in ['rlutcl']:
+    # ['rsut', 'rsutcs', 'rsutcl', 'clt', 'pr', 'rlut', 'rlutcs']
     var1 = cmip6_era5_var[var2]
     print(f'#---------------- {var2} {var1}')
     
@@ -61,6 +66,21 @@ for var2 in ['clivi']:
         era5_mtnswrf = xr.open_mfdataset(sorted(glob.glob(f'/g/data/rt52/era5/single-levels/monthly-averaged/mtnswrf/202[0-1]/*.nc')))['mtnswrf'].sel(time=slice('2020-03', '2021-02'))
         datasets['ERA5'][var2] = (era5_mtnswrf - era5_mtdwswrf).rename({'latitude': 'lat', 'longitude': 'lon'})
         del era5_mtdwswrf, era5_mtnswrf
+    elif var1 in ['mtuwswrfcs']:
+        era5_mtdwswrf = xr.open_mfdataset(sorted(glob.glob(f'/g/data/rt52/era5/single-levels/monthly-averaged/mtdwswrf/202[0-1]/*.nc')))['mtdwswrf'].sel(time=slice('2020-03', '2021-02'))
+        era5_mtnswrfcs = xr.open_mfdataset(sorted(glob.glob(f'/g/data/rt52/era5/single-levels/monthly-averaged/mtnswrfcs/202[0-1]/*.nc')))['mtnswrfcs'].sel(time=slice('2020-03', '2021-02'))
+        datasets['ERA5'][var2] = (era5_mtnswrfcs - era5_mtdwswrf).rename({'latitude': 'lat', 'longitude': 'lon'})
+        del era5_mtdwswrf, era5_mtnswrfcs
+    elif var1 in ['mtuwswrfcl']:
+        era5_mtnswrf = xr.open_mfdataset(sorted(glob.glob(f'/g/data/rt52/era5/single-levels/monthly-averaged/mtnswrf/202[0-1]/*.nc')))['mtnswrf'].sel(time=slice('2020-03', '2021-02'))
+        era5_mtnswrfcs = xr.open_mfdataset(sorted(glob.glob(f'/g/data/rt52/era5/single-levels/monthly-averaged/mtnswrfcs/202[0-1]/*.nc')))['mtnswrfcs'].sel(time=slice('2020-03', '2021-02'))
+        datasets['ERA5'][var2] = (era5_mtnswrf - era5_mtnswrfcs).rename({'latitude': 'lat', 'longitude': 'lon'})
+        del era5_mtnswrf, era5_mtnswrfcs
+    elif var1 in ['mtnlwrfcl']:
+        era5_mtnlwrf = xr.open_mfdataset(sorted(glob.glob(f'/g/data/rt52/era5/single-levels/monthly-averaged/mtnlwrf/202[0-1]/*.nc')))['mtnlwrf'].sel(time=slice('2020-03', '2021-02'))
+        era5_mtnlwrfcs = xr.open_mfdataset(sorted(glob.glob(f'/g/data/rt52/era5/single-levels/monthly-averaged/mtnlwrfcs/202[0-1]/*.nc')))['mtnlwrfcs'].sel(time=slice('2020-03', '2021-02'))
+        datasets['ERA5'][var2] = (era5_mtnlwrf - era5_mtnlwrfcs).rename({'latitude': 'lat', 'longitude': 'lon'})
+        del era5_mtnlwrf, era5_mtnlwrfcs
     else:
         datasets['ERA5'][var2] = xr.open_mfdataset(sorted(glob.glob(f'/g/data/rt52/era5/single-levels/monthly-averaged/{var1}/202[0-1]/*.nc')))[var1].sel(time=slice('2020-03', '2021-02')).rename({'latitude': 'lat', 'longitude': 'lon'})
     if var1 in ['tp', 'e', 'cp', 'lsp', 'pev']:
@@ -76,7 +96,7 @@ for var2 in ['clivi']:
     elif var1 in ['mper']:
         datasets['ERA5'][var2] *= 86400
     
-    for imode in ['diff']:
+    for imode in ['org', 'diff']:
         # ['org', 'diff', 'regrid']
         print(f'#-------------------------------- {imode}')
         
@@ -105,9 +125,16 @@ for var2 in ['clivi']:
             pltlevel2, pltticks2, pltnorm2, pltcmp2 = plt_mesh_pars(
                 cm_min=-30, cm_max=30, cm_interval1=5, cm_interval2=10, cmap='BrBG_r')
             extend2 = 'both'
-        elif var2 in ['rsut']:
+        elif var2 in ['rsut', 'rsutcl']:
             pltlevel, pltticks, pltnorm, pltcmp = plt_mesh_pars(
                 cm_min=-250, cm_max=-20, cm_interval1=10, cm_interval2=20, cmap='viridis')
+            extend = 'both'
+            pltlevel2, pltticks2, pltnorm2, pltcmp2 = plt_mesh_pars(
+                cm_min=-40, cm_max=40, cm_interval1=5, cm_interval2=10, cmap='BrBG')
+            extend2 = 'both'
+        elif var2 in ['rsutcs']:
+            pltlevel, pltticks, pltnorm, pltcmp = plt_mesh_pars(
+                cm_min=-100, cm_max=0, cm_interval1=10, cm_interval2=20, cmap='viridis')
             extend = 'both'
             pltlevel2, pltticks2, pltnorm2, pltcmp2 = plt_mesh_pars(
                 cm_min=-40, cm_max=40, cm_interval1=5, cm_interval2=10, cmap='BrBG')
@@ -123,7 +150,7 @@ for var2 in ['clivi']:
             pltnorm2 = BoundaryNorm(pltlevel2, ncolors=len(pltlevel2)-1, clip=True)
             pltcmp2 = plt.get_cmap('BrBG', len(pltlevel2)-1)
             extend2 = 'both'
-        elif var2 in ['rlut']:
+        elif var2 in ['rlut', 'rlutcs', 'rlutcl']:
             pltlevel, pltticks, pltnorm, pltcmp = plt_mesh_pars(
                 cm_min=-300, cm_max=-130, cm_interval1=10, cm_interval2=20, cmap='viridis',)
             extend = 'both'
@@ -166,7 +193,7 @@ for var2 in ['clivi']:
                 plt_data *= 86400
             elif var2 in ['tas', 'ts']:
                 plt_data -= 273.15
-            elif var2 in ['rlus', 'rluscs', 'rlut', 'rlutcs', 'rsus', 'rsuscs', 'rsut', 'rsutcs', 'hfls', 'hfss']:
+            elif var2 in ['rlus', 'rluscs', 'rlut', 'rlutcs', 'rlutcl', 'rsus', 'rsuscs', 'rsut', 'rsutcs', 'rsutcl', 'hfls', 'hfss']:
                 plt_data *= (-1)
             elif var2 in ['psl']:
                 plt_data /= 100
@@ -181,7 +208,7 @@ for var2 in ['clivi']:
                 plt_data *= 86400
             elif var2 in ['tas', 'ts']:
                 plt_data -= 273.15
-            elif var2 in ['rlus', 'rluscs', 'rlut', 'rlutcs', 'rsus', 'rsuscs', 'rsut', 'rsutcs', 'hfls', 'hfss']:
+            elif var2 in ['rlus', 'rluscs', 'rlut', 'rlutcs', 'rlutcl', 'rsus', 'rsuscs', 'rsut', 'rsutcs', 'rsutcl', 'hfls', 'hfss']:
                 plt_data *= (-1)
             elif var2 in ['psl']:
                 plt_data /= 100
@@ -200,7 +227,7 @@ for var2 in ['clivi']:
                 plt_data *= 86400
             elif var2 in ['tas', 'ts']:
                 plt_data -= 273.15
-            elif var2 in ['rlus', 'rluscs', 'rlut', 'rlutcs', 'rsus', 'rsuscs', 'rsut', 'rsutcs', 'hfls', 'hfss']:
+            elif var2 in ['rlus', 'rluscs', 'rlut', 'rlutcs', 'rlutcl', 'rsus', 'rsuscs', 'rsut', 'rsutcs', 'rsutcl', 'hfls', 'hfss']:
                 plt_data *= (-1)
             elif var2 in ['psl']:
                 plt_data /= 100
@@ -221,7 +248,7 @@ for var2 in ['clivi']:
                 plt_data *= 86400
             elif var2 in ['tas', 'ts']:
                 plt_data -= 273.15
-            elif var2 in ['rlus', 'rluscs', 'rlut', 'rlutcs', 'rsus', 'rsuscs', 'rsut', 'rsutcs', 'hfls', 'hfss']:
+            elif var2 in ['rlus', 'rluscs', 'rlut', 'rlutcs', 'rlutcl', 'rsus', 'rsuscs', 'rsut', 'rsutcs', 'rsutcl', 'hfls', 'hfss']:
                 plt_data *= (-1)
             elif var2 in ['psl']:
                 plt_data /= 100
@@ -242,7 +269,7 @@ for var2 in ['clivi']:
                 plt_data *= 86400
             elif var2 in ['tas', 'ts']:
                 plt_data -= 273.15
-            elif var2 in ['rlus', 'rluscs', 'rlut', 'rlutcs', 'rsus', 'rsuscs', 'rsut', 'rsutcs', 'hfls', 'hfss']:
+            elif var2 in ['rlus', 'rluscs', 'rlut', 'rlutcs', 'rlutcl', 'rsus', 'rsuscs', 'rsut', 'rsutcs', 'rsutcl', 'hfls', 'hfss']:
                 plt_data *= (-1)
             elif var2 in ['psl']:
                 plt_data /= 100
@@ -263,7 +290,7 @@ for var2 in ['clivi']:
                 plt_data *= 86400
             elif var2 in ['tas', 'ts']:
                 plt_data -= 273.15
-            elif var2 in ['rlus', 'rluscs', 'rlut', 'rlutcs', 'rsus', 'rsuscs', 'rsut', 'rsutcs', 'hfls', 'hfss']:
+            elif var2 in ['rlus', 'rluscs', 'rlut', 'rlutcs', 'rlutcl', 'rsus', 'rsuscs', 'rsut', 'rsutcs', 'rsutcl', 'hfls', 'hfss']:
                 plt_data *= (-1)
             elif var2 in ['psl']:
                 plt_data /= 100

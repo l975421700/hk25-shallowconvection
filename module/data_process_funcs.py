@@ -39,3 +39,22 @@ def read_MCD06COSP_M3(ifile, ivar2, ivar1):
     return(ds_out)
 
 
+def regrid(
+    ds_in, ds_out=None, grid_spacing=1, method='bilinear',
+    periodic=True, ignore_degenerate=True, unmapped_to_nan=True,
+    extrap_method='nearest_s2d', extrap_num_src_pnts=8):
+    '''
+    ds_in: original xarray.DataArray
+    ds_out: xarray.DataArray with target grid, default None
+    '''
+    
+    import xesmf as xe
+    
+    if ds_out is None: ds_out = xe.util.grid_global(grid_spacing, grid_spacing)
+    
+    regridder = xe.Regridder(
+        ds_in, ds_out, method, periodic=periodic,
+        ignore_degenerate=ignore_degenerate, unmapped_to_nan=unmapped_to_nan,
+        extrap_method=extrap_method, extrap_num_src_pnts=extrap_num_src_pnts)
+    return regridder(ds_in)
+
