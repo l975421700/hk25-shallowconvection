@@ -24,12 +24,20 @@ sys.path.append(os.getcwd() + '/code/hk25-shallowconvection/module')
 from plot_funcs import (globe_plot, remove_trailing_zero_pos, plt_mesh_pars)
 from data_process_funcs import (read_MCD06COSP_M3, modis_cmip6_var)
 
+import intake
+from easygems import healpix as egh
+import pandas as pd
+
 
 # endregion
 
 
 # region import data
 
+cat = intake.open_catalog("https://digital-earths-global-hackathon.github.io/catalog/catalog.yaml")["online"]
+list(cat)
+
+ds = cat["um_glm_n2560_RAL3p3"](zoom = 6).to_dask()
 
 
 '''
